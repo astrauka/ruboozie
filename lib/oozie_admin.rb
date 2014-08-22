@@ -1,8 +1,7 @@
 module OozieAdmin
-  
-  def status
+  def status(fmt = :plain)
     resource = "/admin/status"
-    oozie_get(resource)
+    oozie_get(resource, fmt)
   end
 
   def os_env

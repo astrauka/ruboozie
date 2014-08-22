@@ -10,4 +10,5 @@ Gem::Specification.new do |s|
   s.homepage    =  'http://github.com/rathboma/ruboozie'
   s.add_dependency 'httparty'
   s.add_dependency 'builder'
+  s.add_dependency 'multi_json'
 end

@@ -1,30 +1,34 @@
 require 'oozie_objects'
+require 'oozie_admin'
 require 'oozie_jobs'
 require 'httparty'
+require 'multi_json'
 
 class OozieException < StandardError
-
 end
+
 # so oozie responds in json, only accepts XML, and if there's an error the response is in HTML
 class OozieApi
   extend OozieJobs
-  
+  extend OozieAdmin
+
   include HTTParty
   format :plain
+  debug_output $stderr
+
   def self.setup(url)
     @@prefix = url
-    @@prefix += "/oozie" unless url.include?("/oozie")
-    @@prefix += "/v0" unless url.include?("/v0")
   end
-  
+
   # def self.extended(other)
   #   other.send :include, HTTParty
   # end
-  
-  def self.oozie_get(resource, fmt = :plain)
+
+  def self.oozie_get(resource, fmt = :plain, params = {})
     response = nil
     begin
-      response = get(@@prefix + resource)
+      url = @@prefix + resource
+      response = get(url, query: params)
     rescue StandardError => ex
       raise OozieException.new(ex)
     end
@@ -35,15 +39,17 @@ class OozieApi
 
     when :json
       begin
-        MultiJson.decode(response.body)  
+        MultiJson.decode(response.body)
       rescue StandardError => e
         ex_message = response.headers['oozie-error-code'] ? "#{response.headers['oozie-error-code']}: #{response.headers['oozie-error-message']}": response.body
         error = OozieException.new(ex_message)
         raise error
       end
+    else
+      response
     end
   end
-  
+
   def self.oozie_post(resource, fmt = :plain, params={})
     response = nil
     begin
@@ -58,17 +64,17 @@ class OozieApi
 
     when :json
       begin
-        MultiJson.decode(response.body)  
+        MultiJson.decode(response.body)
       rescue StandardError => e
         ex_message = response.headers['oozie-error-code'] ? "#{response.headers['oozie-error-code']}: #{response.headers['oozie-error-message']}" : response.body
         error = OozieException.new(ex_message)
         raise error
       end
+    else
+      response
     end
-
-
   end
-  
+
   def self.oozie_put(resource, fmt = :plain, opts={})
     response = nil
     begin
@@ -83,16 +89,16 @@ class OozieApi
 
     when :json
       begin
-        MultiJson.decode(response.body)  
+        MultiJson.decode(response.body)
       rescue StandardError => e
         ex_message = response.headers['oozie-error-code'] ? "#{response.headers['oozie-error-code']}: #{response.headers['oozie-error-message']}": response.body
         error = OozieException.new(ex_message)
         raise error
       end
+    else
+      response
     end
-  
   end
-  
 end
 
 # GET
