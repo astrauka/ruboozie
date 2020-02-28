@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'ruboozie'
-  s.version     = '0.1.2'
+  s.version     = '0.2.0'
   s.date        = '2012-04-05'
   s.summary     = "A pure-ruby API for Apache oozie"
   s.description = "Apache Oozie [http://incubator.apache.org/oozie/] is a workflow engine for Apache MapReduce jobs. This wrapper lets you submit jobs and stuff from any ruby project"
@@ -11,4 +11,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'httparty'
   s.add_dependency 'builder'
   s.add_dependency 'multi_json'
+  s.add_dependency 'gssapi'
 end

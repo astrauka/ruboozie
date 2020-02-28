@@ -27,9 +27,9 @@ Meh
 Example
 =======
 
-OozieApi.setup("http://localhost:11000/oozie")
+OozieApi.setup("http://localhost:11000/oozie", kerberos: true)
 
-properties =  {'user.name' => 'matthew', 
+properties =  {'user.name' => 'matthew',
               'oozie.wf.application.path' => 'hdfs:///workflows/hello_world/workflow.xml'}
 
 job = OozieApi.submit_job(properties, :action => :start)

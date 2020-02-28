@@ -16,8 +16,9 @@ class OozieApi
   format :plain
   debug_output $stderr
 
-  def self.setup(url)
+  def self.setup(url, options = {})
     @@prefix = url
+    @@kerberos = options[:kerberos]
   end
 
   # def self.extended(other)
@@ -28,7 +29,7 @@ class OozieApi
     response = nil
     begin
       url = @@prefix + resource
-      response = get(url, query: params)
+      response = get(url, query: params, headers: kerberos_header)
     rescue StandardError => ex
       raise OozieException.new(ex)
     end
@@ -53,7 +54,8 @@ class OozieApi
   def self.oozie_post(resource, fmt = :plain, params={})
     response = nil
     begin
-      response = post(@@prefix + resource, params)
+      headers = params[:headers].merge(kerberos_header)
+      response = post(@@prefix + resource, params.merge(headers: headers))
     rescue StandardError => ex
       raise OozieException.new(ex)
     end
@@ -78,7 +80,7 @@ class OozieApi
   def self.oozie_put(resource, fmt = :plain, opts={})
     response = nil
     begin
-      response = put(@@prefix + resource)
+      response = put(@@prefix + resource, headers: kerberos_header)
     rescue StandardError => ex
       raise OozieException.new(ex)
     end
@@ -98,6 +100,19 @@ class OozieApi
     else
       response
     end
+  end
+
+  def self.kerberos_header
+    return {} unless @@kerberos
+
+    require 'base64'
+    require 'uri'
+    require 'gssapi'
+
+    gsscli = GSSAPI::Simple.new(URI(@@prefix).host, 'HTTP')
+    token = gsscli.init_context
+
+    {'Authorization' => "Negotiate #{Base64.strict_encode64(token)}"}
   end
 end
 
